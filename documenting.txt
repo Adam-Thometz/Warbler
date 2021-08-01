@@ -9,3 +9,12 @@
 
 3. In users/index.html, replaced the following:
 - line 39: BIO HERE -->> {{ user.bio }}
+
+4. Added UserEditForm in forms.py
+
+5. Updated the route on line 212 from 'users/profile' to 'users/<int:user_id>/profile'
+    - Added form processing to aformentioned route
+
+6. In app.py, imported or_ from sqlalchemy
+
+7. Changed homepage function to show posts only from self and followed users

@@ -17,6 +17,17 @@ class UserAddForm(FlaskForm):
     password = PasswordField('Password', validators=[Length(min=6)])
     image_url = StringField('(Optional) Image URL')
 
+class UserEditForm(FlaskForm):
+    """Form for editing users."""
+
+    password = PasswordField('Please enter your password to make changes', validators=[Length(min=6)])
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('E-mail', validators=[DataRequired(), Email()])
+    image_url = StringField('(Optional) Image URL')
+    header_image_url = StringField('(Optional) Header Image URL')
+    bio = TextAreaField('Bio')
+    location = StringField('Location')
+
 
 class LoginForm(FlaskForm):
     """Login form."""
