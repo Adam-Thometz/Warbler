@@ -1,0 +1,11 @@
+1. Added the following to the log_out function in app.py:
+    session.pop(CURR_USER_KEY)
+    flash('Successfully logged out!', 'success')
+    return redirect('/login')
+
+2. In users/detail.html, replaced the following:
+- line 61: BIO HERE -->> {{ user.bio }}
+- line 62: LOCATION HERE -->> {{ user.location }}
+
+3. In users/index.html, replaced the following:
+- line 39: BIO HERE -->> {{ user.bio }}
