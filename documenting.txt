@@ -1,3 +1,4 @@
+PART ONE: FIXING CURRENT FEATURES
 1. Added the following to the log_out function in app.py:
     session.pop(CURR_USER_KEY)
     flash('Successfully logged out!', 'success')
@@ -18,3 +19,10 @@
 6. In app.py, imported or_ from sqlalchemy
 
 7. Changed homepage function to show posts only from self and followed users
+
+PART TWO: ADD LIKE FEATURE
+8. Added likes and toggle_like routes
+
+9. Changed Font Awesome template
+
+10. Added id 'like-button' to like button and style.css

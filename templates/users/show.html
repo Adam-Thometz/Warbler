@@ -11,7 +11,29 @@
           <a href="/users/{{ user.id }}">
             <img src="{{ user.image_url }}" alt="user image" class="timeline-image">
           </a>
-
+          {% if message in g.user.likes %}
+          <form method="POST" action="/users/{{message.id}}/like" id='like-button'>
+          <button class="
+              btn 
+              btn-sm 
+              btn-secondary"
+          >
+          <i class="fas fa-star" class="
+          btn 
+          btn-sm 
+          btn-secondary"></i>
+          </button>
+          </form>
+          {% endif %}
+          <form method="POST" action="/users/{{message.id}}/like" id="messages-form">
+          <button class="
+              btn 
+              btn-sm 
+              {{'btn-primary' if message.id in likes else 'btn-secondary'}}"
+          >
+              <i class="fa fa-thumbs-up"></i> 
+          </button>
+          </form>
           <div class="message-area">
             <a href="/users/{{ user.id }}">@{{ user.username }}</a>
             <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>

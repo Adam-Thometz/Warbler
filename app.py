@@ -6,7 +6,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
 
@@ -296,6 +296,40 @@ def messages_destroy(message_id):
     db.session.commit()
 
     return redirect(f"/users/{g.user.id}")
+
+
+##############################################################################
+# Likes routes
+
+@app.route('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Show a user's likes"""
+    user = User.query.get_or_404(user_id)
+    return render_template('messages/likes.html', user=user, likes=user.likes)
+
+@app.route('/users/<int:message_id>/like', methods=['POST'])
+def toggle_like(message_id):
+    """Toggle a like on/off"""
+    
+    if not g.user:
+        flash("You must be logged in to like a post.", "info")
+        return redirect("/")
+    
+    liked_message = Message.query.get_or_404(message_id)
+    if liked_message.user_id == g.user.id:
+        flash("You cannot like your own post...", "info")
+        return redirect("/")
+
+    user_likes = g.user.likes
+
+    if liked_message in user_likes:
+        g.user.likes = [like for like in g.user.likes if like != liked_message]
+    else:
+        g.user.likes.append(liked_message)
+
+    db.session.commit()
+
+    return redirect('/')
 
 
 ##############################################################################
