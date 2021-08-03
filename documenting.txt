@@ -26,3 +26,7 @@ PART TWO: ADD LIKE FEATURE
 9. Changed Font Awesome template
 
 10. Added id 'like-button' to like button and style.css
+
+11. Imported wraps from functools and replaced repeated authentication with a @login_required decorator in app.py
+
+PART THREE: ADD TESTING

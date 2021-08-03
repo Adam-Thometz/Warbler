@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g
+from functools import wraps
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -40,6 +41,15 @@ def add_user_to_g():
     else:
         g.user = None
 
+def login_required(f):
+    @wraps(f)
+    def func(*args, **kwargs):
+        if g.user:
+            return f(*args, **kwargs)
+        else:
+            flash("You must be logged in to do that.", "danger")
+            return redirect("/") 
+    return func
 
 def do_login(user):
     """Log in user."""
@@ -111,6 +121,7 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
     """Handle logout of user."""
 
@@ -157,36 +168,27 @@ def users_show(user_id):
 
 
 @app.route('/users/<int:user_id>/following')
+@login_required
 def show_following(user_id):
     """Show list of people this user is following."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
 
 
 @app.route('/users/<int:user_id>/followers')
+@login_required
 def users_followers(user_id):
     """Show list of followers of this user."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     user = User.query.get_or_404(user_id)
     return render_template('users/followers.html', user=user)
 
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
+@login_required
 def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.append(followed_user)
@@ -196,12 +198,9 @@ def add_follow(follow_id):
 
 
 @app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
+@login_required
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     followed_user = User.query.get(follow_id)
     g.user.following.remove(followed_user)
@@ -211,12 +210,13 @@ def stop_following(follow_id):
 
 
 @app.route('/users/<int:user_id>/profile', methods=["GET", "POST"])
+@login_required
 def profile(user_id):
     """Update profile for current user."""
 
     user = User.query.get_or_404(user_id)
-    if not g.user or g.user != user:
-        flash("Access unauthorized.", "danger")
+    if g.user != user:
+        flash("You must be logged in to do that.", "danger")
         return redirect("/")
     
     form = UserEditForm(obj=user)
@@ -234,12 +234,9 @@ def profile(user_id):
 
 
 @app.route('/users/delete', methods=["POST"])
+@login_required
 def delete_user():
     """Delete user."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     do_logout()
 
@@ -253,15 +250,12 @@ def delete_user():
 # Messages routes:
 
 @app.route('/messages/new', methods=["GET", "POST"])
+@login_required
 def messages_add():
     """Add a message:
 
     Show form if GET. If valid, update message and redirect to user page.
     """
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     form = MessageForm()
 
@@ -284,12 +278,9 @@ def messages_show(message_id):
 
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
+@login_required
 def messages_destroy(message_id):
     """Delete a message."""
-
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     msg = Message.query.get(message_id)
     db.session.delete(msg)
@@ -308,12 +299,9 @@ def show_likes(user_id):
     return render_template('messages/likes.html', user=user, likes=user.likes)
 
 @app.route('/users/<int:message_id>/like', methods=['POST'])
+@login_required
 def toggle_like(message_id):
     """Toggle a like on/off"""
-    
-    if not g.user:
-        flash("You must be logged in to like a post.", "info")
-        return redirect("/")
     
     liked_message = Message.query.get_or_404(message_id)
     if liked_message.user_id == g.user.id:
