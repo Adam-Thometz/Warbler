@@ -52,7 +52,7 @@
               <p>{{ msg.text }}</p>
             </div>
             {% if msg in g.user.likes %}
-            <form method="POST" action="/users/{{msg.id}}/like" id='like-button'>
+            <form method="POST" action="/messages/{{msg.id}}/likes" id='like-button'>
               <button class="
                 btn 
                 btn-sm 
@@ -65,7 +65,7 @@
               </button>
             </form>
             {% endif %}
-            <form method="POST" action="/users/{{msg.id}}/like" id="messages-form">
+            <form method="POST" action="/messages/{{msg.id}}/like" id="messages-form">
               <button class="
                 btn 
                 btn-sm 

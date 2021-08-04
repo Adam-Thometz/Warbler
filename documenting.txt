@@ -29,4 +29,12 @@ PART TWO: ADD LIKE FEATURE
 
 11. Imported wraps from functools and replaced repeated authentication with a @login_required decorator in app.py
 
-PART THREE: ADD TESTING
+PART THREE: ADD TESTING (these changes have been made other than adding testing)
+
+12. line 276: `Message.query.get` is now `Message.query.get_or_404`
+
+13. line 355: added `, 404` to end of `return render_template('404.html')`
+
+14. Changed small bug in 'index.html'
+
+15. Exchanged hard coded urls with url_for in app.py

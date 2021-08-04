@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, request, flash, redirect, session, g
+from flask import Flask, render_template, request, flash, redirect, session, g, url_for
 from functools import wraps
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import or_
@@ -194,7 +194,7 @@ def add_follow(follow_id):
     g.user.following.append(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(url_for(show_following, user_id=g.user.id))
 
 
 @app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
@@ -206,7 +206,7 @@ def stop_following(follow_id):
     g.user.following.remove(followed_user)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(url_for(show_following, user_id=g.user.id))
 
 
 @app.route('/users/<int:user_id>/profile', methods=["GET", "POST"])
@@ -229,7 +229,7 @@ def profile(user_id):
         user.location = form.location.data
 
         db.session.commit()
-        return redirect(f'users/{user.id}')
+        return redirect(url_for(users_show, user_id = user.id))
     return render_template('users/edit.html', form=form)
 
 
@@ -264,7 +264,7 @@ def messages_add():
         g.user.messages.append(msg)
         db.session.commit()
 
-        return redirect(f"/users/{g.user.id}")
+        return redirect(url_for(users_show, user_id = g.user.id))
 
     return render_template('messages/new.html', form=form)
 
@@ -273,7 +273,7 @@ def messages_add():
 def messages_show(message_id):
     """Show a message."""
 
-    msg = Message.query.get(message_id)
+    msg = Message.query.get_or_404(message_id)
     return render_template('messages/show.html', message=msg)
 
 
@@ -281,24 +281,27 @@ def messages_show(message_id):
 @login_required
 def messages_destroy(message_id):
     """Delete a message."""
-
     msg = Message.query.get(message_id)
+    if g.user.id != msg.user_id:
+        flash('You are not authorized to delete that message.')
+        return redirect(f'/users/{g.user.id}')
+
     db.session.delete(msg)
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}")
+    return redirect(url_for(users_show, user_id = g.user.id))
 
 
 ##############################################################################
 # Likes routes
 
-@app.route('/users/<int:user_id>/likes')
+@app.route('/messages/<int:user_id>/likes')
 def show_likes(user_id):
     """Show a user's likes"""
     user = User.query.get_or_404(user_id)
     return render_template('messages/likes.html', user=user, likes=user.likes)
 
-@app.route('/users/<int:message_id>/like', methods=['POST'])
+@app.route('/messages/<int:message_id>/like', methods=['POST'])
 @login_required
 def toggle_like(message_id):
     """Toggle a like on/off"""
@@ -349,7 +352,7 @@ def homepage():
 
 @app.errorhandler(404)
 def not_found(e):
-    return render_template('404.html')
+    return render_template('404.html'), 404
 
 ##############################################################################
 # Turn off all caching in Flask

@@ -36,7 +36,7 @@
             <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
           </div>
           {% if message in g.user.likes %}
-          <form method="POST" action="/users/{{message.id}}/like" id='like-button-bottom'>
+          <form method="POST" action="/messages/{{message.id}}/like" id='like-button-bottom'>
           <button class="
               btn 
               btn-sm 
@@ -49,7 +49,7 @@
           </button>
           </form>
           {% endif %}
-          <form method="POST" action="/users/{{message.id}}/like" id="messages-form-bottom">
+          <form method="POST" action="/messages/{{message.id}}/like" id="messages-form-bottom">
           <button class="
               btn 
               btn-sm 
